@@ -53,7 +53,8 @@
     
       draw(gridData)
       // do the pixels at the top of image 0 align with the bottom of image 1?
-      const align = await check_edge_alignment(imageData[0], imageData[1], EDGES.TOP)
+      // fuzziness set to 10
+      const align = await check_edge_alignment(imageData[0], imageData[1], EDGES.TOP, 10)
       console.debug('0:1', align)
     }
 
