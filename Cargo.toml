@@ -1,0 +1,13 @@
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[package]
+name = "image_resize_and_combine"
+description = "Wasm functions that resize and combine images"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+image = "0.24.7"
+wasm-bindgen = "0.2.87"

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image resize and combine in WebAssembly</title>
+</head>
+<body>
+  <script type="module">
+    // just a random grab bag of images from Flickr.
+    const images = [
+    'https://live.staticflickr.com/65535/52152800977_a7ea308db0_b_d.jpg',
+    'https://live.staticflickr.com/65535/50711447591_d9f3818ca3_b_d.jpg',
+    'https://live.staticflickr.com/4414/37164980830_0d2a79b30c_b_d.jpg',
+    'https://live.staticflickr.com/4451/36712454434_3e580e45b4_b_d.jpg',
+    'https://live.staticflickr.com/7558/26836845022_6f2e3453cb_b_d.jpg',
+    'https://live.staticflickr.com/1764/42206799065_162123dda9_b_d.jpg',
+    'https://live.staticflickr.com/5709/22202611686_d67410bdcf_b_d.jpg',
+    'https://live.staticflickr.com/2906/13962976027_d622308e1d_b_d.jpg',
+    'https://live.staticflickr.com/772/20639005784_a3d0710386_b_d.jpg'
+    ]
+
+    import init, { resize_image, create_image_grid } from './pkg/wasm_hello_world.js';
+
+    const getImageArray = async (url, size) => fetch(url)
+      .then(r => r.arrayBuffer())
+      .then(arr => resize_image(new Uint8Array(arr), 250))
+    
+    const arrayToSrc = (imageData) =>
+      URL.createObjectURL(new Blob([imageData], { type: 'image/png' }))
+
+    const draw = (imageData) =>   {
+      const img = document.createElement('img')
+      img.src = arrayToSrc(imageData)
+      document.body.appendChild(img)
+    }
+
+    const run = async () => {
+      const imageData = await Promise.all(
+        images.map(src => getImageArray(src, 500))
+      ).then(images => create_image_grid(...images, 750))
+    
+      draw(imageData)
+    }
+
+    init().then(run);
+ </script>
+</body>
+</html>
