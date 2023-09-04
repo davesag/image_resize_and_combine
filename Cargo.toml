@@ -4,6 +4,8 @@ name = "image_resize_and_combine"
 description = "Wasm functions that resize and combine images"
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/davesag/image_resize_and_combine.git"
+license = "MIT"
 
 [lib]
 crate-type = ["cdylib"]

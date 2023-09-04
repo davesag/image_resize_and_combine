@@ -21,7 +21,7 @@
     'https://live.staticflickr.com/772/20639005784_a3d0710386_b_d.jpg'
     ]
 
-    import init, { resize_image, create_image_grid } from './pkg/wasm_hello_world.js';
+    import init, { resize_image, create_image_grid } from './pkg/image_resize_and_combine.js';
 
     const getImageArray = async (url, size) => fetch(url)
       .then(r => r.arrayBuffer())
