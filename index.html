@@ -8,6 +8,13 @@
 </head>
 <body>
   <script type="module">
+    const EDGES = {
+      TOP: 0,
+      RIGHT: 1,
+      BOTTOM: 2,
+      LEFT: 3,
+    }
+
     // just a random grab bag of images from Flickr.
     const images = [
     'https://live.staticflickr.com/65535/52152800977_a7ea308db0_b_d.jpg',
@@ -21,7 +28,9 @@
     'https://live.staticflickr.com/772/20639005784_a3d0710386_b_d.jpg'
     ]
 
-    import init, { resize_image, create_image_grid } from './pkg/image_resize_and_combine.js';
+    import init, {
+      check_edge_alignment, create_image_grid, resize_image
+    } from './pkg/image_resize_and_combine.js';
 
     const getImageArray = async (url, size) => fetch(url)
       .then(r => r.arrayBuffer())
@@ -39,9 +48,13 @@
     const run = async () => {
       const imageData = await Promise.all(
         images.map(src => getImageArray(src, 500))
-      ).then(images => create_image_grid(...images, 750))
+      )
+      const gridData = create_image_grid(...imageData, 750)
     
-      draw(imageData)
+      draw(gridData)
+      // do the pixels at the top of image 0 align with the bottom of image 1?
+      const align = await check_edge_alignment(imageData[0], imageData[1], EDGES.TOP)
+      console.debug('0:1', align)
     }
 
     init().then(run);

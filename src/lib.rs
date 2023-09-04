@@ -3,8 +3,9 @@ use wasm_bindgen::prelude::*;
 use image::codecs::png::PngEncoder;
 use image::imageops::resize;
 use image::DynamicImage::ImageRgba8;
+use image::{load_from_memory, ImageBuffer, Rgba};
 use image::{ColorType, GenericImageView};
-use image::{ImageBuffer, Rgba};
+use std::cmp::min;
 
 use wasm_bindgen;
 
@@ -82,4 +83,56 @@ pub fn resize_image(image_data: &[u8], width: u32) -> Vec<u8> {
         .encode(&new_img.into_raw(), width, height, ColorType::Rgba8)
         .unwrap();
     buf
+}
+
+// enum Edge {
+//     Top,
+//     Right,
+//     Bottom,
+//     Left,
+// }
+
+#[wasm_bindgen]
+pub fn check_edge_alignment(image1_data: &[u8], image2_data: &[u8], edge: u8) -> bool {
+    let img1 = load_from_memory(image1_data).unwrap();
+    let img2 = load_from_memory(image2_data).unwrap();
+
+    let width = min(img1.width(), img2.width());
+    let height = min(img1.height(), img2.height());
+
+    match edge {
+        0 => {
+            for x in 0..width {
+                if img1.get_pixel(x, 0) != img2.get_pixel(x, height - 1) {
+                    return false;
+                }
+            }
+        }
+        1 => {
+            for y in 0..height {
+                if img1.get_pixel(width - 1, y) != img2.get_pixel(0, y) {
+                    return false;
+                }
+            }
+        }
+        2 => {
+            for x in 0..width {
+                if img1.get_pixel(x, height - 1) != img2.get_pixel(x, 0) {
+                    return false;
+                }
+            }
+        }
+        3 => {
+            for y in 0..height {
+                if img1.get_pixel(0, y) != img2.get_pixel(width - 1, y) {
+                    return false;
+                }
+            }
+        }
+        _ => {
+            return false;
+        }
+    }
+
+    true
 }
