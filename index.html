@@ -15,19 +15,19 @@
       LEFT: 3,
     }
 
-    // just a random grab bag of images from Flickr.
-    const images = [
-    'https://live.staticflickr.com/65535/52152800977_a7ea308db0_b_d.jpg',
-    'https://live.staticflickr.com/65535/50711447591_d9f3818ca3_b_d.jpg',
-    'https://live.staticflickr.com/4414/37164980830_0d2a79b30c_b_d.jpg',
-    'https://live.staticflickr.com/4451/36712454434_3e580e45b4_b_d.jpg',
-    'https://live.staticflickr.com/7558/26836845022_6f2e3453cb_b_d.jpg',
-    'https://live.staticflickr.com/1764/42206799065_162123dda9_b_d.jpg',
-    'https://live.staticflickr.com/5709/22202611686_d67410bdcf_b_d.jpg',
-    'https://live.staticflickr.com/2906/13962976027_d622308e1d_b_d.jpg',
-    'https://live.staticflickr.com/772/20639005784_a3d0710386_b_d.jpg'
+    // neatly cut up image of a boat.
+    const boat = [
+      'https://live.staticflickr.com/65535/53166055759_030c8d745d_o_d.png', // image 0 top left
+      'https://live.staticflickr.com/65535/53166338563_7d84ec02e0_o_d.png', // image 1 top middle
+      'https://live.staticflickr.com/65535/53165265147_11f150be23_o_d.png', // image 2 top right
+      'https://live.staticflickr.com/65535/53165264922_da22d09d61_o_d.png', // image 3 left middle
+      'https://live.staticflickr.com/65535/53165264877_8b55027154_o_d.png', // image 4 middle
+      'https://live.staticflickr.com/65535/53166055629_181a9f5470_o_d.png', // image 5 right middle
+      'https://live.staticflickr.com/65535/53166287010_f49e53d793_o_d.png', // image 6 bottom left
+      'https://live.staticflickr.com/65535/53166055684_86d33ed426_o_d.png', // image 7 - bottom middle
+      'https://live.staticflickr.com/65535/53165851246_e6b819c6f4_o_d.png' // image 8 - bottom right
     ]
-
+  
     import init, {
       check_edge_alignment, create_image_grid, resize_image
     } from './pkg/image_resize_and_combine.js';
@@ -47,15 +47,21 @@
 
     const run = async () => {
       const imageData = await Promise.all(
-        images.map(src => getImageArray(src, 500))
+        boat.map(src => getImageArray(src, 500))
       )
       const gridData = create_image_grid(...imageData, 750)
     
       draw(gridData)
       // do the pixels at the top of image 0 align with the bottom of image 1?
       // fuzziness set to 10
-      const align = await check_edge_alignment(imageData[0], imageData[1], EDGES.TOP, 10)
-      console.debug('0:1', align)
+      let align = await check_edge_alignment(imageData[0], imageData[1], EDGES.RIGHT, 150)
+      console.debug('0 right:1 left', align, 'expect true')
+
+      align = await check_edge_alignment(imageData[1], imageData[2], EDGES.RIGHT, 150)
+      console.debug('1 right:2 left', align, 'expect true')
+
+      align = await check_edge_alignment(imageData[0], imageData[2], EDGES.RIGHT, 150)
+      console.debug('0 right:2 left', align, 'expect false')
     }
 
     init().then(run);

@@ -20,7 +20,9 @@ pub fn check_edge_alignment(
     let height = min(img1.height(), img2.height());
 
     fn is_similar(a: u8, b: u8, fuzziness: u8) -> bool {
-        (a as i16 - b as i16).abs() <= fuzziness as i16
+        let actual = (a as i16 - b as i16).abs();
+
+        actual <= fuzziness as i16
     }
 
     fn pixels_similar(px1: &Rgba<u8>, px2: &Rgba<u8>, fuzziness: u8) -> bool {
