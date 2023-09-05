@@ -6,5 +6,6 @@
     "rustup",
     "tlsv1",
     "wasm_bindgen"
-  ]
+  ],
+  "rust-analyzer.linkedProjects": ["./Cargo.toml", "./Cargo.toml"]
 }
