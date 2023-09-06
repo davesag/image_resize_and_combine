@@ -29,7 +29,7 @@
     ]
   
     import init, {
-      check_edge_alignment, create_image_grid, resize_image
+      compare_images, create_image_grid, resize_image
     } from './pkg/image_resize_and_combine.js';
 
     const getImageArray = async (url, size) => fetch(url)
@@ -54,14 +54,23 @@
       draw(gridData)
       // do the pixels at the top of image 0 align with the bottom of image 1?
       // fuzziness set to 10
-      let align = await check_edge_alignment(imageData[0], imageData[1], EDGES.RIGHT, 150)
-      console.debug('0 right:1 left', align, 'expect true')
+      let align
+      
+      try {
+        align = await compare_images(imageData[0], imageData[1], EDGES.RIGHT, 0.8)
+        console.debug('compare_images 0 right:1 left', align, 'expect true')
 
-      align = await check_edge_alignment(imageData[1], imageData[2], EDGES.RIGHT, 150)
-      console.debug('1 right:2 left', align, 'expect true')
+        align = await compare_images(imageData[1], imageData[2], EDGES.RIGHT, 0.8)
+        console.debug('compare_images 1 right:2 left', align, 'expect true')
 
-      align = await check_edge_alignment(imageData[0], imageData[2], EDGES.RIGHT, 150)
-      console.debug('0 right:2 left', align, 'expect false')
+        align = await compare_images(imageData[0], imageData[2], EDGES.RIGHT, 0.8)
+        console.debug('compare_images 0 right:2 left', align, 'expect true')
+
+        align = await compare_images(imageData[6], imageData[7], EDGES.TOP, 0.8)
+        console.debug('compare_images 6 top:7 bottom', align, 'expect false')
+      } catch (err) {
+        console.error(err)
+      }
     }
 
     init().then(run);

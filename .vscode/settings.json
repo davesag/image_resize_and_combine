@@ -2,7 +2,9 @@
   "cSpell.words": [
     "ColorType",
     "imageops",
+    "imageproc",
     "Lanczos3",
+    "luma",
     "rustup",
     "tlsv1",
     "wasm_bindgen"
