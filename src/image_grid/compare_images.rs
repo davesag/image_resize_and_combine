@@ -5,46 +5,60 @@ use image::{load_from_memory, DynamicImage, GenericImageView};
 use wasm_bindgen;
 
 #[wasm_bindgen]
+
+/**
+ Depending on the edge we slice off 10% of the width of one image and
+ a matching slice of the other image.  Then we flip one of those
+ slices on its axis and compare the resulting rectangles for similarity.
+
+ If the similarity score is >= the threshold then return true.
+*/
 pub fn compare_images(image1_data: &[u8], image2_data: &[u8], edge: u8, threshold: f32) -> bool {
-    let img1 = load_from_memory(image1_data).unwrap();
-    let img2 = load_from_memory(image2_data).unwrap();
+    assert!(edge <= 3, "edge must be 0, 1, 2, or 3");
+    assert!(
+        threshold > 0.0 && threshold < 1.0,
+        "threshold must be between 0 and 1"
+    );
 
-    compare_image_sides(&img1, &img2, edge, threshold)
-}
+    let image1 = load_from_memory(image1_data).unwrap();
+    let image2 = load_from_memory(image2_data).unwrap();
 
-fn compare_image_sides(
-    image1: &DynamicImage,
-    image2: &DynamicImage,
-    edge: u8,
-    threshold: f32,
-) -> bool {
-    // Define the width of the side portions to compare (adjust as needed)
-    let slice_width = image1.width() / 10;
+    let w1 = image1.width();
+    let h1 = image1.height();
+    let w2 = image2.width();
+    let h2 = image2.height();
+
+    assert!(
+        w1 == h1 && w2 == h2 && w1 == w2,
+        "Images must be identically sized squares"
+    );
+
+    let slice_width = w1 / 10;
 
     match edge {
         0 => {
-            // Crop the top side of image 1 to the Bottom of image 2
+            // Compare the top side of image 1 to the bottom of image 2
             let side1 = crop_top(&image1, slice_width);
             let side2 = crop_bottom(&image2, slice_width);
             flip_horizontal(&side2);
             return compute_similarity(&side1, &side2) >= threshold;
         }
         1 => {
-            // match right side of image 1 with left side of image 2
+            // Compare right side of image 1 to left side of image 2
             let side1 = crop_right(&image1, slice_width);
             let side2 = crop_left(&image2, slice_width);
             flip_vertical(&side2);
             return compute_similarity(&side1, &side2) >= threshold;
         }
         3 => {
-            // Crop the bottom side of image 1 to the top of image 2
+            // Compare the bottom side of image 1 to the top of image 2
             let side1 = crop_bottom(&image1, slice_width);
             let side2 = crop_top(&image2, slice_width);
             flip_horizontal(&side2);
             return compute_similarity(&side1, &side2) >= threshold;
         }
         4 => {
-            // Crop the left side of image 1 to the right of image 2
+            // Compare the left side of image 1 to the right of image 2
             let side1 = crop_left(&image1, slice_width);
             let side2 = crop_right(&image2, slice_width);
             flip_vertical(&side2);
@@ -54,34 +68,28 @@ fn compare_image_sides(
     }
 }
 
-// Function to crop the side of an image (left or right)
 fn crop_left(image: &DynamicImage, width: u32) -> DynamicImage {
     let (img_width, img_height) = image.dimensions();
     let x_end = width.min(img_width);
-    image.clone().crop(0, 0, x_end, img_height).to_owned()
+    image.crop_imm(0, 0, x_end, img_height).to_owned()
 }
 
 fn crop_right(image: &DynamicImage, width: u32) -> DynamicImage {
     let (img_width, img_height) = image.dimensions();
     let x_start = img_width - width.min(img_width);
-    image.clone().crop(x_start, 0, width, img_height).to_owned()
+    image.crop_imm(x_start, 0, width, img_height).to_owned()
 }
 
 fn crop_top(image: &DynamicImage, height: u32) -> DynamicImage {
     let (img_width, img_height) = image.dimensions();
-    // Ensure the specified height does not exceed the image's height
     let y_end = height.min(img_height);
-    image.clone().crop(0, 0, img_width, y_end).to_owned()
+    image.crop_imm(0, 0, img_width, y_end).to_owned()
 }
 
 fn crop_bottom(image: &DynamicImage, height: u32) -> DynamicImage {
     let (img_width, img_height) = image.dimensions();
-    // Ensure the specified height does not exceed the image's height
     let y_start = img_height - height.min(img_height);
-    image
-        .clone()
-        .crop(0, y_start, img_width, img_height)
-        .to_owned()
+    image.crop_imm(0, y_start, img_width, img_height).to_owned()
 }
 
 fn compute_similarity(r1: &DynamicImage, r2: &DynamicImage) -> f32 {
